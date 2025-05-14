@@ -1,5 +1,8 @@
 package com.example.redisspring;
 
+import com.example.redisspring.city.client.CityClient;
+import com.example.redisspring.city.dto.City;
+import com.example.redisspring.city.service.CityService;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RAtomicLongReactive;
@@ -20,6 +23,22 @@ class RedisSpringApplicationTests {
 
 	@Autowired
 	private RedissonReactiveClient client;
+
+	@Autowired
+	private CityClient cityClient;
+
+	@Test
+	public void getAllCity() throws Exception {
+		long before = System.currentTimeMillis();
+		Flux<City> flux = cityClient.getAllCity()
+				.doOnNext(c -> System.out.println(c.toString()));
+		long expectedCount = 33121;
+		StepVerifier.create(flux.count())
+				.expectNext(expectedCount)
+				.verifyComplete();
+		long after = System.currentTimeMillis();
+		System.out.println((after - before) + " ms");
+	}
 
 	// Spring Data Redis의 ReactiveValueOperations를 사용하여 Redis의 counter를 비동기적으로 증가시키기.
 	// 1. dependency: spring-boot-starter-data-redis-reactive
